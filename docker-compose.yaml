@@ -1,0 +1,39 @@
+services:
+  db:
+    container_name: postgresql_db_new_project  # <--- Փոխված
+    image: postgis/postgis:17-3.4
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"                             # <--- Փոխված
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./postgres_data_new:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+      - ./Data:/data:ro  # Սա բավարար է, որ բոլոր CSV-ները լինեն /data թղթապանակում
+
+
+  pgadmin:
+    container_name: pgadmin_new_project        # <--- Փոխված
+    image: dpage/pgadmin4
+    user: root
+    restart: always
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5051:80"                               # <--- Փոխված
+    volumes:
+      - ./pgadmin_data_new:/var/lib/pgadmin     # <--- Փոխված
+      - ./queries:/var/lib/pgadmin/storage/admin_admin.com/queries
+    depends_on:
+      - db
